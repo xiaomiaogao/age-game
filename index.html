@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>年龄判断小游戏</title>
+</head>
+<body>
+  <h2>年龄判断小游戏</h2>
+
+  <input id="age" type="number" placeholder="请输入您的年龄">
+  <button onclick="checkAge()">开始判断</button>
+
+  <h3 id="result"></h3>
+
+  <script>
+    function checkAge() {
+      let age = document.getElementById("age").value;
+
+      if (age === "") {
+        document.getElementById("result").innerText = "请先输入年龄哦";
+      } else if (age >= 18) {
+        document.getElementById("result").innerText = "恭喜你成年啦，可以去网吧嗨皮了";
+      } else {
+        document.getElementById("result").innerText = "你还不满18岁，不能上网哦";
+      }
+    }
+  </script>
+</body>
+</html>
