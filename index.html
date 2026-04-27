@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>A-Z 千题随机挑战</title>
+<style>
+*{box-sizing:border-box}body{margin:0;min-height:100vh;font-family:"Microsoft YaHei",Arial,sans-serif;color:#fff;background:radial-gradient(circle at top left,rgba(255,0,100,.45),transparent 28%),radial-gradient(circle at bottom right,rgba(0,245,255,.42),transparent 35%),linear-gradient(135deg,#101020,#181832 55%,#070713);overflow-x:hidden}.app{width:min(760px,94vw);margin:0 auto;padding:26px 0 46px}h1{margin:0 0 8px;text-align:center;font-size:34px;text-shadow:3px 3px 0 #ff0050,-3px -3px 0 #00f5ff}.sub{text-align:center;color:#d8d8f0;line-height:1.7}.card{position:relative;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);box-shadow:0 24px 70px rgba(0,0,0,.42),inset 0 1px 0 rgba(255,255,255,.18);backdrop-filter:blur(16px);padding:22px;border-radius:28px}.hidden{display:none!important}.top{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}.badge{padding:8px 12px;border-radius:999px;background:rgba(0,0,0,.25);border:1px solid rgba(255,255,255,.16)}.qbox{margin-top:15px;padding:22px;border-radius:24px;background:linear-gradient(145deg,rgba(255,255,255,.16),rgba(255,255,255,.06));border:1px solid rgba(255,255,255,.12)}#type{color:#00f5ff;font-weight:900}.question{font-size:23px;line-height:1.6}.opts{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}.opt{padding:14px;border-radius:16px;border:1px solid rgba(255,255,255,.18);background:rgba(0,0,0,.28);color:#fff;text-align:left;font-size:16px}.opt.selected{outline:3px solid rgba(255,239,90,.9);background:rgba(255,239,90,.16)}button{border:none;cursor:pointer;padding:14px 14px;border-radius:18px;color:#fff;font-weight:900;font-size:16px}.btns{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:14px}.primary{background:linear-gradient(135deg,#ff0050,#ff7a00)}.secondary{background:linear-gradient(135deg,#00c2ff,#6c5cff)}.ghost{background:rgba(255,255,255,.16)}.start{width:100%;margin-top:18px;background:linear-gradient(135deg,#00f5ff,#ff0050)}#msg{min-height:46px;margin-top:14px;padding:12px;border-radius:16px;background:rgba(0,0,0,.25);line-height:1.55}.bar{margin-top:16px;height:10px;border-radius:99px;overflow:hidden;background:rgba(255,255,255,.15)}#progress{height:100%;width:0;background:linear-gradient(90deg,#00f5ff,#ff0050,#ffef5a)}.end{text-align:center}.gold{color:#ffef5a;font-weight:900}.hint{margin-top:10px;padding:12px;border-radius:14px;background:rgba(255,239,90,.12);text-align:left;color:#fff7b0}.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}.mini{padding:10px;border-radius:14px;background:rgba(0,0,0,.22);font-size:13px}@media(max-width:560px){.opts,.btns,.grid{grid-template-columns:1fr}h1{font-size:28px}.question{font-size:20px}}
+</style>
+</head>
+<body>
+<div class="app">
+<h1>🔥 A-Z 千题随机挑战</h1>
+<p class="sub">26 类题库，每类 1000 题。每次从 a.txt 到 z.txt 各随机抽 1 题，共 26 题，满分 100 分。</p>
+<div class="card">
+<section id="startPanel">
+<h2>规则说明</h2>
+<div class="grid">
+<div class="mini">前 20 题：每题 3 分，共 60 分</div>
+<div class="mini">第 21-25 题：每题 4 分，共 20 分</div>
+<div class="mini">第 26 题：压轴多选，6 选 4，每个正确答案 5 分，共 20 分</div>
+<div class="mini">所有题目都有提示；题库文件与 index.html 放同一文件夹</div>
+</div>
+<button class="start" onclick="startGame()">开始随机发卷</button>
+</section>
+
+<section id="playPanel" class="hidden">
+<div class="top">
+<div class="badge" id="level">第 1 / 26 题</div>
+<div class="badge">本题 <span id="pointText">3</span> 分</div>
+<div class="badge">得分：<span id="score">0</span></div>
+</div>
+<div class="qbox">
+<div id="type"></div>
+<div class="question" id="question"></div>
+<div class="opts" id="options"></div>
+<div class="hint hidden" id="hint"></div>
+</div>
+<div class="btns">
+<button class="ghost" onclick="showHint()">查看提示</button>
+<button class="secondary" onclick="skipQuestion()">跳过</button>
+<button class="primary" onclick="submitAnswer()">提交</button>
+</div>
+<div id="msg">请选择答案。</div>
+<div class="bar"><div id="progress"></div></div>
+</section>
+
+<section id="endPanel" class="hidden end">
+<h2>挑战结束</h2>
+<p id="finalText"></p>
+<button class="start" onclick="location.reload()">再来一卷</button>
+</section>
+</div>
+</div>
+<script>
+const files = "abcdefghijklmnopqrstuvwxyz".split("").map(x=>`./${x}.txt`);
+const typeNames = {
+a:"图形谐音猜城市名字",b:"脑筋急转弯",c:"根据图片猜成语",d:"根据描述猜古代人物",e:"根据描述猜近代人物",
+f:"猜四大名著人物",g:"填充诗",h:"根据描述猜电视剧",i:"根据描述猜电影",j:"根据经典台词猜人物",k:"根据经典歌词猜歌名",
+l:"猜之最",m:"猜经典书籍",n:"天文宇宙",o:"世界地理",p:"动物世界",q:"植物草木",r:"世界历史",s:"科学常识",
+t:"发明发现",u:"艺术音乐",v:"体育运动",w:"中国文化",x:"世界文化",y:"生活百科",z:"高难综合多选"
+};
+let paper=[],idx=0,score=0,selected=new Set(),locked=false;
+const $=id=>document.getElementById(id);
+function rand(arr){return arr[Math.floor(Math.random()*arr.length)]}
+async function loadOne(file){
+  const text = await fetch(file).then(r=>{if(!r.ok)throw new Error(file); return r.text()});
+  const lines = text.trim().split(/\n+/);
+  return JSON.parse(rand(lines));
+}
+async function startGame(){
+  $("startPanel").classList.add("hidden");
+  $("playPanel").classList.remove("hidden");
+  $("msg").innerText="正在读取 a-z 题库文件...";
+  try{
+    paper = await Promise.all(files.map(loadOne));
+    // 最后一题必须取 z.txt 高难多选
+    const last = paper[25];
+    const first25 = paper.slice(0,25).sort(()=>Math.random()-.5);
+    paper = [...first25,last];
+    loadQuestion();
+  }catch(e){
+    $("msg").innerHTML="题库读取失败：请确认 index.html 与 a.txt-z.txt 在同一文件夹，并用本地服务器打开，例如 VSCode Live Server。";
+  }
+}
+function pointOf(i){ if(i<20)return 3; if(i<25)return 4; return 20; }
+function loadQuestion(){
+  locked=false; selected.clear();
+  const q=paper[idx], p=pointOf(idx);
+  $("level").innerText=`第 ${idx+1} / 26 题`;
+  $("pointText").innerText=p;
+  $("score").innerText=score;
+  $("type").innerText=`${q.type || typeNames[String.fromCharCode(97+idx)]}｜${q.mode==="multi"?"多选 6 选 4":"单选"}`;
+  $("question").innerText=q.question;
+  $("hint").classList.add("hidden");
+  $("hint").innerText="提示：" + q.hint;
+  $("msg").innerText=q.mode==="multi" ? "请选择 4 个答案，每选对 1 个得 5 分。" : "请选择 1 个答案。";
+  $("progress").style.width=(idx/paper.length*100)+"%";
+  $("options").innerHTML="";
+  q.options.forEach((op,n)=>{
+    const btn=document.createElement("button");
+    btn.className="opt";
+    btn.innerText=String.fromCharCode(65+n)+". "+op;
+    btn.onclick=()=>toggleOption(op,btn,q.mode);
+    $("options").appendChild(btn);
+  });
+}
+function toggleOption(op,btn,mode){
+  if(locked)return;
+  if(mode==="multi"){
+    if(selected.has(op)){selected.delete(op);btn.classList.remove("selected");return;}
+    if(selected.size>=4){$("msg").innerText="多选题最多选择 4 个答案。";return;}
+    selected.add(op);btn.classList.add("selected");
+  }else{
+    selected.clear();
+    document.querySelectorAll(".opt").forEach(x=>x.classList.remove("selected"));
+    selected.add(op);btn.classList.add("selected");
+  }
+}
+function showHint(){ $("hint").classList.remove("hidden"); }
+function submitAnswer(){
+  if(locked)return;
+  const q=paper[idx];
+  if(selected.size===0){$("msg").innerText="请先选择答案。";return;}
+  if(q.mode==="single" && selected.size!==1){$("msg").innerText="单选题只能选 1 个。";return;}
+  if(q.mode==="multi" && selected.size!==4){$("msg").innerText="多选题需要选择 4 个。";return;}
+  locked=true;
+  const ans=q.answer;
+  if(q.mode==="multi"){
+    let add=0;
+    selected.forEach(x=>{ if(ans.includes(x)) add+=5; });
+    score+=add;
+    $("msg").innerHTML=`本题得 <span class="gold">${add}</span> 分。正确答案：${ans.join("、")}`;
+  }else{
+    const ok=ans.includes([...selected][0]);
+    const add=ok?pointOf(idx):0;
+    score+=add;
+    $("msg").innerHTML= ok ? `✅ 答对了，+${add} 分。` : `❌ 答错了，正确答案：<span class="gold">${ans[0]}</span>`;
+  }
+  $("score").innerText=score;
+  setTimeout(next,900);
+}
+function skipQuestion(){
+  if(locked)return;
+  locked=true;
+  const q=paper[idx];
+  $("msg").innerHTML=`已跳过。正确答案：<span class="gold">${q.answer.join("、")}</span>`;
+  setTimeout(next,700);
+}
+function next(){
+  idx++;
+  if(idx>=paper.length){finish();}else{loadQuestion();}
+}
+function finish(){
+  $("progress").style.width="100%";
+  $("playPanel").classList.add("hidden");
+  $("endPanel").classList.remove("hidden");
+  const pass=score>=90;
+  $("finalText").innerHTML=`你的最终得分：<span class="gold" style="font-size:34px">${score}</span> / 100<br>${pass?"🎉 恭喜及格，知识面很广！":"继续加油，题目范围很广，能完成已经很棒了！"}`;
+}
+</script>
+</body>
+</html>
