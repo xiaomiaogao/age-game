@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>100题终极挑战</title>
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Microsoft YaHei", Arial, sans-serif;
+      color: #fff;
+      text-align: center;
+      overflow-x: hidden;
+      background:
+        radial-gradient(circle at top left, rgba(255, 0, 100, .48), transparent 30%),
+        radial-gradient(circle at bottom right, rgba(0, 245, 255, .48), transparent 35%),
+        linear-gradient(135deg, #101020, #181832 55%, #070713);
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(rgba(255,255,255,.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.04) 1px, transparent 1px);
+      background-size: 34px 34px;
+      mask-image: linear-gradient(to bottom, transparent, #000 18%, #000 82%, transparent);
+    }
+
+    .app {
+      position: relative;
+      z-index: 1;
+      width: min(540px, 94vw);
+      margin: 0 auto;
+      padding: 24px 0 42px;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: 32px;
+      line-height: 1.15;
+      text-shadow: 3px 3px 0 #ff0050, -3px -3px 0 #00f5ff;
+      letter-spacing: 1px;
+    }
+
+    .sub-title {
+      margin: 0 0 18px;
+      color: #d8d8f0;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .card {
+      position: relative;
+      background: rgba(255, 255, 255, .1);
+      border: 1px solid rgba(255, 255, 255, .18);
+      box-shadow: 0 24px 70px rgba(0, 0, 0, .42), inset 0 1px 0 rgba(255,255,255,.18);
+      backdrop-filter: blur(16px);
+      padding: 22px;
+      border-radius: 28px;
+      overflow: hidden;
+    }
+
+    .card::after {
+      content: "";
+      position: absolute;
+      right: -80px;
+      top: -80px;
+      width: 180px;
+      height: 180px;
+      border-radius: 50%;
+      background: rgba(255, 0, 80, .3);
+      filter: blur(8px);
+      pointer-events: none;
+    }
+
+    .hidden { display: none !important; }
+
+    .top-row {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 14px;
+      font-size: 14px;
+    }
+
+    .badge,
+    .score-box {
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(0, 0, 0, .25);
+      border: 1px solid rgba(255, 255, 255, .16);
+    }
+
+    .score-box span {
+      color: #ffef5a;
+      font-weight: 900;
+      text-shadow: 0 0 14px rgba(255,239,90,.5);
+    }
+
+    .module-line {
+      position: relative;
+      z-index: 1;
+      margin: 4px 0 14px;
+      font-size: 13px;
+      color: #bfc0ff;
+    }
+
+    .question-area {
+      position: relative;
+      z-index: 1;
+      min-height: 190px;
+      padding: 22px 14px;
+      border-radius: 24px;
+      background: linear-gradient(145deg, rgba(255,255,255,.16), rgba(255,255,255,.06));
+      border: 1px solid rgba(255,255,255,.12);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      animation: pop .28s ease;
+    }
+
+    @keyframes pop {
+      from { transform: scale(.96); opacity: .35; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    #type {
+      margin: 0 0 14px;
+      color: #00f5ff;
+      font-weight: 900;
+      font-size: 16px;
+    }
+
+    #question {
+      margin: 0;
+      font-size: 25px;
+      line-height: 1.6;
+      word-break: break-word;
+    }
+
+    input {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      margin-top: 18px;
+      padding: 15px 16px;
+      border-radius: 18px;
+      border: none;
+      outline: none;
+      font-size: 17px;
+      color: #17172a;
+      background: rgba(255,255,255,.95);
+    }
+
+    input:focus { box-shadow: 0 0 0 3px rgba(0, 245, 255, .6); }
+
+    .btn-row {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    button {
+      border: none;
+      cursor: pointer;
+      padding: 14px 10px;
+      border-radius: 18px;
+      color: #fff;
+      font-weight: 900;
+      font-size: 16px;
+      transition: transform .12s ease, filter .12s ease;
+    }
+
+    button:active { transform: scale(.96); }
+    button:hover { filter: brightness(1.08); }
+    button:disabled { opacity: .55; cursor: not-allowed; }
+
+    .submit {
+      background: linear-gradient(135deg, #ff0050, #ff7a00);
+      box-shadow: 0 10px 26px rgba(255, 0, 80, .35);
+    }
+
+    .skip {
+      background: linear-gradient(135deg, #00c2ff, #6c5cff);
+      box-shadow: 0 10px 26px rgba(0, 194, 255, .28);
+    }
+
+    .start-btn,
+    .restart {
+      width: 100%;
+      margin-top: 16px;
+      background: linear-gradient(135deg, #00f5ff, #ff0050);
+      box-shadow: 0 12px 30px rgba(255,0,80,.28);
+    }
+
+    #msg {
+      position: relative;
+      z-index: 1;
+      min-height: 50px;
+      margin-top: 14px;
+      padding: 12px;
+      border-radius: 16px;
+      line-height: 1.5;
+      background: rgba(0, 0, 0, .25);
+    }
+
+    .progress-wrap {
+      position: relative;
+      z-index: 1;
+      margin-top: 16px;
+      height: 10px;
+      border-radius: 99px;
+      overflow: hidden;
+      background: rgba(255, 255, 255, .15);
+    }
+
+    #progress {
+      height: 100%;
+      width: 0%;
+      border-radius: 99px;
+      background: linear-gradient(90deg, #00f5ff, #ff0050, #ffef5a);
+      transition: width .25s ease;
+    }
+
+    .module-grid {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .module-item {
+      padding: 10px;
+      border-radius: 16px;
+      background: rgba(0,0,0,.22);
+      border: 1px solid rgba(255,255,255,.12);
+      color: #e8e8ff;
+      font-size: 13px;
+      line-height: 1.4;
+    }
+
+    .shake { animation: shake .28s ease; }
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-8px); }
+      75% { transform: translateX(8px); }
+    }
+
+    .right-flash { animation: rightFlash .45s ease; }
+    @keyframes rightFlash {
+      0%, 100% { box-shadow: 0 24px 70px rgba(0,0,0,.42); }
+      50% { box-shadow: 0 0 36px rgba(0,255,150,.95); }
+    }
+
+    .wrong-flash { animation: wrongFlash .45s ease; }
+    @keyframes wrongFlash {
+      0%, 100% { box-shadow: 0 24px 70px rgba(0,0,0,.42); }
+      50% { box-shadow: 0 0 36px rgba(255,0,80,.95); }
+    }
+
+    .end-box {
+      position: relative;
+      z-index: 1;
+      padding: 26px 12px 8px;
+    }
+
+    .end-box h2 {
+      font-size: 32px;
+      margin: 0 0 12px;
+    }
+
+    .end-box p {
+      line-height: 1.8;
+      color: #e8e8ff;
+    }
+
+    .victory-title {
+      font-size: 38px;
+      margin-bottom: 6px;
+      text-shadow: 0 0 20px rgba(255,239,90,.8), 3px 3px 0 #ff0050, -3px -3px 0 #00f5ff;
+    }
+
+    .trophy {
+      font-size: 72px;
+      animation: trophy 1.2s ease-in-out infinite alternate;
+    }
+
+    @keyframes trophy {
+      from { transform: translateY(0) rotate(-4deg); }
+      to { transform: translateY(-8px) rotate(4deg); }
+    }
+
+    .result-list {
+      text-align: left;
+      margin: 16px 0 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .result-list li {
+      margin: 8px 0;
+      padding: 10px 12px;
+      border-radius: 14px;
+      background: rgba(0,0,0,.22);
+      color: #e8e8ff;
+    }
+
+    .gold { color: #ffef5a; font-weight: 900; }
+
+    @media (max-width: 420px) {
+      h1 { font-size: 27px; }
+      #question { font-size: 22px; }
+      .module-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <h1>🔥 100题终极挑战</h1>
+    <p class="sub-title">脑筋急转弯 / 中国城市 / 杰出人物 / 成语诗句 / 四大名著 / 世界战役 / 全球城市谐音</p>
+
+    <div class="card" id="card">
+      <section id="startPanel">
+        <div class="trophy">🎮</div>
+        <h2>准备开始挑战</h2>
+        <p class="sub-title">共 100 题，每题 2 分，满分 200 分。全部答完后进入胜利页面。</p>
+        <div class="module-grid">
+          <div class="module-item">1-10：脑筋急转弯</div>
+          <div class="module-item">11-20：中国城市</div>
+          <div class="module-item">21-30：古代人物</div>
+          <div class="module-item">31-40：现代人物</div>
+          <div class="module-item">41-50：看图成语</div>
+          <div class="module-item">51-60：诗句补词</div>
+          <div class="module-item">61-70：名著人物</div>
+          <div class="module-item">71-80：名著地点</div>
+          <div class="module-item">81-90：世界战役</div>
+          <div class="module-item">91-100：全球谐音城市</div>
+        </div>
+        <button class="start-btn" onclick="startGame()">开始挑战</button>
+      </section>
+
+      <section id="playPanel" class="hidden">
+        <div class="top-row">
+          <div class="badge" id="level">第 1 / 100 题</div>
+          <div class="score-box">得分：<span id="score">0</span></div>
+        </div>
+
+        <div class="module-line" id="moduleLine">当前模块</div>
+
+        <div class="question-area" id="questionArea">
+          <p id="type"></p>
+          <p id="question"></p>
+        </div>
+
+        <input id="answer" placeholder="请输入答案，按回车也可以提交" autocomplete="off" />
+
+        <div class="btn-row">
+          <button class="skip" id="skipBtn" onclick="skipQuestion()">跳过</button>
+          <button class="submit" id="submitBtn" onclick="check()">提交</button>
+        </div>
+
+        <p id="msg">准备开始，答对一题 +2 分。</p>
+
+        <div class="progress-wrap">
+          <div id="progress"></div>
+        </div>
+      </section>
+
+      <section id="victoryPanel" class="hidden end-box">
+        <div class="trophy">🏆</div>
+        <h2 class="victory-title">挑战完成！</h2>
+        <p id="finalText"></p>
+        <ul class="result-list" id="resultList"></ul>
+        <button class="restart" onclick="restartGame()">再来一局</button>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    const qs = [
+      { t: "脑筋急转弯", q: "什么东西越洗越脏？", a: ["水"] },
+      { t: "脑筋急转弯", q: "什么人天天去看病？", a: ["医生"] },
+      { t: "脑筋急转弯", q: "什么东西有头无尾？", a: ["针"] },
+      { t: "脑筋急转弯", q: "什么东西越用越少？", a: ["钱", "时间"] },
+      { t: "脑筋急转弯", q: "什么东西看不见摸不着却一直在身边？", a: ["空气"] },
+      { t: "脑筋急转弯", q: "什么门永远关不上？", a: ["球门"] },
+      { t: "脑筋急转弯", q: "什么东西跑得最快？", a: ["时间"] },
+      { t: "脑筋急转弯", q: "什么东西一剪就一分为二？", a: ["纸"] },
+      { t: "脑筋急转弯", q: "什么东西打不烂？", a: ["影子"] },
+      { t: "脑筋急转弯", q: "什么东西越多越不值钱？", a: ["废话"] },
+
+      { t: "中国城市", q: "中国首都是哪座城市？", a: ["北京"] },
+      { t: "中国城市", q: "西湖在哪座城市？", a: ["杭州"] },
+      { t: "中国城市", q: "兵马俑在哪座城市？", a: ["西安"] },
+      { t: "中国城市", q: "火锅之都、山城，是哪座城市？", a: ["重庆"] },
+      { t: "中国城市", q: "熊猫基地最有名的城市是？", a: ["成都"] },
+      { t: "中国城市", q: "东方明珠所在城市是？", a: ["上海"] },
+      { t: "中国城市", q: "鼓浪屿所在城市是？", a: ["厦门"] },
+      { t: "中国城市", q: "冰城是哪个城市？", a: ["哈尔滨"] },
+      { t: "中国城市", q: "羊城是哪个城市？", a: ["广州"] },
+      { t: "中国城市", q: "泉城是哪个城市？", a: ["济南"] },
+
+      { t: "古代人物", q: "统一六国，建立秦朝的人是谁？", a: ["秦始皇", "嬴政"] },
+      { t: "古代人物", q: "被称为“诗仙”的唐代诗人是谁？", a: ["李白"] },
+      { t: "古代人物", q: "被称为“诗圣”的唐代诗人是谁？", a: ["杜甫"] },
+      { t: "古代人物", q: "三国时期，蜀汉的开国皇帝是谁？", a: ["刘备"] },
+      { t: "古代人物", q: "空城计、草船借箭常联想到谁？", a: ["诸葛亮"] },
+      { t: "古代人物", q: "《红楼梦》的作者是谁？", a: ["曹雪芹"] },
+      { t: "古代人物", q: "中国历史上著名女皇帝是谁？", a: ["武则天"] },
+      { t: "古代人物", q: "精忠报国的抗金名将是谁？", a: ["岳飞"] },
+      { t: "古代人物", q: "被称为“医圣”的古代医学家是谁？", a: ["张仲景"] },
+      { t: "古代人物", q: "《孙子兵法》的作者是谁？", a: ["孙子", "孙武"] },
+
+      { t: "现代人物", q: "改革开放的重要领导人是谁？", a: ["邓小平"] },
+      { t: "现代人物", q: "中华人民共和国主要缔造者之一是谁？", a: ["毛泽东"] },
+      { t: "现代人物", q: "被称为“杂交水稻之父”的是谁？", a: ["袁隆平"] },
+      { t: "现代人物", q: "中国著名篮球运动员，曾效力 NBA 火箭队的是谁？", a: ["姚明"] },
+      { t: "现代人物", q: "阿里巴巴创始人是谁？", a: ["马云"] },
+      { t: "现代人物", q: "腾讯主要创始人是谁？", a: ["马化腾"] },
+      { t: "现代人物", q: "华为创始人是谁？", a: ["任正非"] },
+      { t: "现代人物", q: "中国首位获得诺贝尔文学奖的作家是谁？", a: ["莫言"] },
+      { t: "现代人物", q: "中国首位进入太空的航天员是谁？", a: ["杨利伟"] },
+      { t: "现代人物", q: "享誉世界的华人功夫巨星是谁？", a: ["李小龙"] },
+
+      { t: "看图猜成语", q: "🐍 + 🦶", a: ["画蛇添足"] },
+      { t: "看图猜成语", q: "🐔 + 🐶 + 😱", a: ["鸡犬不宁"] },
+      { t: "看图猜成语", q: "🐉 + 👁️", a: ["画龙点睛"] },
+      { t: "看图猜成语", q: "🐟 + 💧", a: ["如鱼得水"] },
+      { t: "看图猜成语", q: "👂 + 🙅", a: ["充耳不闻"] },
+      { t: "看图猜成语", q: "🐦 + 🏹", a: ["惊弓之鸟"] },
+      { t: "看图猜成语", q: "🌧️ + 🚤", a: ["风雨同舟"] },
+      { t: "看图猜成语", q: "🐴 + ✅", a: ["马到成功"] },
+      { t: "看图猜成语", q: "✨ + 🔥 + 🌾", a: ["星火燎原"] },
+      { t: "看图猜成语", q: "🐯 + 👀", a: ["虎视眈眈"] },
+
+      { t: "经典诗句补词", q: "床前明月光，疑是地上___", a: ["霜"] },
+      { t: "经典诗句补词", q: "白日依山尽，黄河入海___", a: ["流"] },
+      { t: "经典诗句补词", q: "锄禾日当午，汗滴禾下___", a: ["土"] },
+      { t: "经典诗句补词", q: "举头望明月，低头思___", a: ["故乡"] },
+      { t: "经典诗句补词", q: "春眠不觉晓，处处闻啼___", a: ["鸟"] },
+      { t: "经典诗句补词", q: "两岸猿声啼不住，轻舟已过万重___", a: ["山"] },
+      { t: "经典诗句补词", q: "孤帆远影碧空尽，唯见长江天际___", a: ["流"] },
+      { t: "经典诗句补词", q: "欲穷千里目，更上一层___", a: ["楼"] },
+      { t: "经典诗句补词", q: "海内存知己，天涯若比___", a: ["邻"] },
+      { t: "经典诗句补词", q: "会当凌绝顶，一览众山___", a: ["小"] },
+
+      { t: "四大名著猜人物", q: "大闹天宫的是谁？", a: ["孙悟空"] },
+      { t: "四大名著猜人物", q: "倒拔垂杨柳的是谁？", a: ["鲁智深"] },
+      { t: "四大名著猜人物", q: "草船借箭常联想到谁？", a: ["诸葛亮"] },
+      { t: "四大名著猜人物", q: "《红楼梦》中的“林妹妹”是谁？", a: ["林黛玉"] },
+      { t: "四大名著猜人物", q: "《西游记》中被称为“八戒”的是谁？", a: ["猪八戒"] },
+      { t: "四大名著猜人物", q: "《水浒传》中“豹子头”是谁？", a: ["林冲"] },
+      { t: "四大名著猜人物", q: "《水浒传》中“黑旋风”是谁？", a: ["李逵"] },
+      { t: "四大名著猜人物", q: "《红楼梦》的男主角是谁？", a: ["贾宝玉"] },
+      { t: "四大名著猜人物", q: "景阳冈打虎的是谁？", a: ["武松"] },
+      { t: "四大名著猜人物", q: "过五关斩六将的是谁？", a: ["关羽"] },
+
+      { t: "四大名著经典地点", q: "孙悟空出生地是哪里？", a: ["花果山"] },
+      { t: "四大名著经典地点", q: "《红楼梦》中贾府主要府邸之一是？", a: ["荣国府"] },
+      { t: "四大名著经典地点", q: "《水浒传》中好汉聚义的地方是？", a: ["梁山", "梁山泊"] },
+      { t: "四大名著经典地点", q: "刘备三顾茅庐的地点常说是哪里？", a: ["隆中"] },
+      { t: "四大名著经典地点", q: "唐僧取经最终到达的佛教圣地是？", a: ["灵山"] },
+      { t: "四大名著经典地点", q: "林黛玉在大观园中的居所是？", a: ["潇湘馆"] },
+      { t: "四大名著经典地点", q: "武松打虎发生在什么地方？", a: ["景阳冈"] },
+      { t: "四大名著经典地点", q: "《三国演义》中著名火攻战役地点是？", a: ["赤壁"] },
+      { t: "四大名著经典地点", q: "《西游记》中只有女子的国家是？", a: ["女儿国"] },
+      { t: "四大名著经典地点", q: "《红楼梦》中众人居住游玩的园子是？", a: ["大观园"] },
+
+      { t: "世界战役", q: "拿破仑最终失败的著名战役是？", a: ["滑铁卢", "滑铁卢战役"] },
+      { t: "世界战役", q: "二战盟军在法国北部的大规模登陆行动是？", a: ["诺曼底登陆", "诺曼底"] },
+      { t: "世界战役", q: "二战东线转折点之一，被称为哪场战役？", a: ["斯大林格勒战役", "斯大林格勒"] },
+      { t: "世界战役", q: "1941年日本袭击美国太平洋舰队基地，该地是？", a: ["珍珠港"] },
+      { t: "世界战役", q: "太平洋战争重要转折战役是？", a: ["中途岛战役", "中途岛"] },
+      { t: "世界战役", q: "一战中有“绞肉机”之称的战役是？", a: ["凡尔登战役", "凡尔登"] },
+      { t: "世界战役", q: "滑铁卢战役中失败的法国皇帝是？", a: ["拿破仑"] },
+      { t: "世界战役", q: "二战德国法西斯头目是？", a: ["希特勒"] },
+      { t: "世界战役", q: "二战太平洋战场著名美国将军是？", a: ["麦克阿瑟"] },
+      { t: "世界战役", q: "古罗马著名统帅，名字常与“凯撒大帝”相关的是？", a: ["凯撒", "尤利乌斯凯撒"] },
+
+      { t: "全球谐音城市", q: "🐔 + 🦢，猜一个城市", a: ["基辅", "kyiv", "kiev"] },
+      { t: "全球谐音城市", q: "🍐 + 🍺，猜一个英国城市", a: ["利物浦", "liverpool"] },
+      { t: "全球谐音城市", q: "🐴 + 🧱，猜一个欧洲首都", a: ["马德里", "madrid"] },
+      { t: "全球谐音城市", q: "🗼 + 🐻，猜一个亚洲城市", a: ["东京", "tokyo"] },
+      { t: "全球谐音城市", q: "🦁 + 🚪，猜一个中国城市", a: ["厦门", "xiamen"] },
+      { t: "全球谐音城市", q: "🍞 + 🧊，猜一个澳洲城市", a: ["墨尔本", "melbourne"] },
+      { t: "全球谐音城市", q: "🐑 + 🔔，猜一个欧洲首都", a: ["柏林", "berlin"] },
+      { t: "全球谐音城市", q: "🧂 + 🐟，猜一个亚洲首都", a: ["首尔", "seoul"] },
+      { t: "全球谐音城市", q: "🍐 + 🧱，猜一个欧洲首都", a: ["里斯本", "lisbon"] },
+      { t: "全球谐音城市", q: "🐮 + 津，猜一个英国城市", a: ["牛津", "oxford"] }
+    ];
+
+    let i = 0;
+    let score = 0;
+    let rightCount = 0;
+    let wrongCount = 0;
+    let skipCount = 0;
+    let locked = false;
+
+    const startPanel = document.getElementById("startPanel");
+    const playPanel = document.getElementById("playPanel");
+    const victoryPanel = document.getElementById("victoryPanel");
+    const typeEl = document.getElementById("type");
+    const questionEl = document.getElementById("question");
+    const questionAreaEl = document.getElementById("questionArea");
+    const answerEl = document.getElementById("answer");
+    const msgEl = document.getElementById("msg");
+    const scoreEl = document.getElementById("score");
+    const levelEl = document.getElementById("level");
+    const progressEl = document.getElementById("progress");
+    const cardEl = document.getElementById("card");
+    const submitBtn = document.getElementById("submitBtn");
+    const skipBtn = document.getElementById("skipBtn");
+    const moduleLine = document.getElementById("moduleLine");
+    const finalText = document.getElementById("finalText");
+    const resultList = document.getElementById("resultList");
+
+    function normalize(str) {
+      return String(str)
+        .trim()
+        .toLowerCase()
+        .replace(/\s+/g, "")
+        .replace(/[，。,.!！?？《》<>“”"'：:；;、\-]/g, "");
+    }
+
+    function startGame() {
+      startPanel.classList.add("hidden");
+      playPanel.classList.remove("hidden");
+      load();
+    }
+
+    function getModuleName(index) {
+      const n = Math.floor(index / 10) + 1;
+      const names = [
+        "脑筋急转弯",
+        "中国城市",
+        "古代人物",
+        "现代人物",
+        "看图猜成语",
+        "经典诗句补词",
+        "四大名著猜人物",
+        "四大名著经典地点",
+        "世界战役",
+        "全球谐音城市"
+      ];
+      return "第 " + n + " 板块：" + names[n - 1] + "（" + ((index % 10) + 1) + "/10）";
+    }
+
+    function load() {
+      locked = false;
+      submitBtn.disabled = false;
+      skipBtn.disabled = false;
+
+      const item = qs[i];
+      typeEl.innerText = item.t;
+      questionEl.innerText = item.q;
+      answerEl.value = "";
+      msgEl.innerText = "请输入答案，答对 +2 分。";
+      levelEl.innerText = "第 " + (i + 1) + " / " + qs.length + " 题";
+      moduleLine.innerText = getModuleName(i);
+      progressEl.style.width = (i / qs.length * 100) + "%";
+
+      questionAreaEl.style.animation = "none";
+      setTimeout(() => questionAreaEl.style.animation = "pop .28s ease", 20);
+      answerEl.focus();
+    }
+
+    function check() {
+      if (locked) return;
+      const value = normalize(answerEl.value);
+
+      if (!value) {
+        msgEl.innerText = "请先输入答案。";
+        shake();
+        return;
+      }
+
+      locked = true;
+      submitBtn.disabled = true;
+      skipBtn.disabled = true;
+
+      const item = qs[i];
+      const ok = item.a.some(ans => normalize(ans) === value);
+
+      if (ok) {
+        score += 2;
+        rightCount++;
+        scoreEl.innerText = score;
+        msgEl.innerHTML = "✅ 答对了！+2 分";
+        cardEl.classList.add("right-flash");
+        setTimeout(() => cardEl.classList.remove("right-flash"), 450);
+      } else {
+        wrongCount++;
+        msgEl.innerHTML = "❌ 答错了，正确答案：<b>" + item.a[0] + "</b>";
+        cardEl.classList.add("wrong-flash");
+        shake();
+        setTimeout(() => cardEl.classList.remove("wrong-flash"), 450);
+      }
+
+      setTimeout(nextQuestion, 900);
+    }
+
+    function skipQuestion() {
+      if (locked) return;
+      locked = true;
+      submitBtn.disabled = true;
+      skipBtn.disabled = true;
+      skipCount++;
+      const item = qs[i];
+      msgEl.innerHTML = "⏭ 已跳过，答案：<b>" + item.a[0] + "</b>";
+      setTimeout(nextQuestion, 850);
+    }
+
+    function nextQuestion() {
+      i++;
+      if (i >= qs.length) {
+        finish();
+      } else {
+        load();
+      }
+    }
+
+    function shake() {
+      cardEl.classList.add("shake");
+      setTimeout(() => cardEl.classList.remove("shake"), 300);
+    }
+
+    function getLevel(score) {
+      if (score < 60) return { name: "青铜新手", desc: "先别慌，至少你已经见过世面了。" };
+      if (score < 100) return { name: "白银选手", desc: "基础不错，脑回路正在发光。" };
+      if (score < 140) return { name: "黄金高手", desc: "你已经能靠知识点和谐音梗横着走了。" };
+      if (score < 180) return { name: "钻石大师", desc: "离王者只差一点点，实力很稳。" };
+      return { name: "王者段位", desc: "太强了，100题都被你打穿了。" };
+    }
+
+    function finish() {
+      progressEl.style.width = "100%";
+      playPanel.classList.add("hidden");
+      victoryPanel.classList.remove("hidden");
+
+      const level = getLevel(score);
+      finalText.innerHTML = `
+        你的最终得分：<span class="gold" style="font-size:30px;">${score}</span> / 200<br>
+        评级：<span class="gold">${level.name}</span><br>
+        ${level.desc}
+      `;
+
+      resultList.innerHTML = `
+        <li>✅ 答对：<span class="gold">${rightCount}</span> 题</li>
+        <li>❌ 答错：<span class="gold">${wrongCount}</span> 题</li>
+        <li>⏭ 跳过：<span class="gold">${skipCount}</span> 题</li>
+        <li>📚 完成模块：<span class="gold">10 / 10</span></li>
+        <li>🎉 状态：<span class="gold">全部完成，胜利通关！</span></li>
+      `;
+    }
+
+    function restartGame() {
+      i = 0;
+      score = 0;
+      rightCount = 0;
+      wrongCount = 0;
+      skipCount = 0;
+      locked = false;
+      scoreEl.innerText = score;
+      victoryPanel.classList.add("hidden");
+      startPanel.classList.remove("hidden");
+      progressEl.style.width = "0%";
+    }
+
+    answerEl.addEventListener("keydown", function (e) {
+      if (e.key === "Enter") check();
+    });
+  </script>
+</body>
+</html>
